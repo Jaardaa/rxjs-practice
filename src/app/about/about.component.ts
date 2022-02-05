@@ -1,40 +1,29 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { noop, Observable } from 'rxjs';
+import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { noop, Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { createHttpObservable } from "../common/util";
 
 @Component({
-  selector: 'about',
-  templateUrl: './about.component.html',
-  styleUrls: ['./about.component.css']
+  selector: "about",
+  templateUrl: "./about.component.html",
+  styleUrls: ["./about.component.css"],
 })
 export class AboutComponent implements OnInit {
-
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
+    const http$ = createHttpObservable("/api/courses");
 
+    const courses$ = http$
+      .pipe(
+        map(res => Object.values(res["payload"]))
+      );
 
-
-    const http$ = new Observable(observer => {
-      fetch('/api/courses')
-        .then(response => {
-          return response.json();
-        })
-        .then(body => {
-          observer.next(body);
-          observer.complete();
-        })
-        .catch(err => {
-          observer.error(err);
-        })
-    });
-
-    http$.subscribe(
-      courses => console.log(courses),
+    courses$.subscribe(
+      (courses) => console.log(courses),
       noop,
-      () => console.log('completed')
+      () => console.log("completed")
     );
   }
-
 }
-
 
